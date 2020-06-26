@@ -7,3 +7,6 @@ venv:
 
 run: 
 	venv/bin/python manage.py runserver --settings identity.settings
+
+test:
+	venv/bin/python manage.py test --settings identity.settings
