@@ -1,0 +1,18 @@
+from django.shortcuts import render
+
+from identity.forms import IdentityForm
+
+
+def index(request):
+    if request.method == 'POST':
+        form = IdentityForm(request.POST, request.FILES)
+        if form.is_valid():
+            return render(request, 'identity/identity_form.html', {
+                'form': IdentityForm(),
+                'message': 'You have entered correct information!',
+            })
+    else:
+        form = IdentityForm()
+    return render(request, 'identity/identity_form.html', {
+        'form': form,
+    })
