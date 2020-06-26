@@ -4,3 +4,6 @@ prepare_environement: venv
 
 venv:
 	python3 -m venv venv
+
+run: 
+	venv/bin/python manage.py runserver --settings identity.settings
