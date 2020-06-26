@@ -1,7 +1,18 @@
 import io
+import json
+from unittest import mock
 
 from django.test import TestCase
 from django.urls import reverse
+
+
+class ResponseMock:
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def json(self):
+        return json.loads(self.content)
 
 
 class IdentityFormTestCase(TestCase):
@@ -31,7 +42,13 @@ class IdentityFormTestCase(TestCase):
         self.assertEqual(resp.content.count(b'class="errorlist"'), 1)
         self.assertIn(b'This field is required.', resp.content)
 
-    def test_successful_form_submition(self):
+    @mock.patch('requests.post')
+    def test_successful_form_submition(self, post_mock):
+        post_mock.return_value = ResponseMock(
+            status_code=200,
+            content=open('identity/fixtures/realid_validation_content.json').read(),
+        )
+
         data = {
             "name": "Vardenis",
             "surname": "Pavardenis",
