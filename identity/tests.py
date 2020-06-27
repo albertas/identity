@@ -46,7 +46,7 @@ class IdentityFormTestCase(TestCase):
     def test_form_submition_with_data_missmatching_document_data(self, post_mock):
         post_mock.return_value = ResponseMock(
             status_code=200,
-            content=open('identity/fixtures/realid_validation_content.json').read(),
+            content=open('identity/fixtures/vigilija_realid_validation_content.json').read(),
         )
 
         data = {
@@ -66,7 +66,7 @@ class IdentityFormTestCase(TestCase):
     def test_successful_form_submition_with_vigilija_data(self, post_mock):
         post_mock.return_value = ResponseMock(
             status_code=200,
-            content=open('identity/fixtures/realid_validation_content.json').read(),
+            content=open('identity/fixtures/vigilija_realid_validation_content.json').read(),
         )
 
         data = {
