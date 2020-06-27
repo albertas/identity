@@ -24,13 +24,15 @@ class IdentityForm(forms.Form):
         return content_base64, content_sha1
 
     def remove_noise_from_ocr_string(self, ocr_str):
+        '''Fixes incorrectly recognized characters'''
         char_fixes = {
             '\u3001': '',
             ' ': '',
             '\n': '',
             '\u304f': '>',
-            'O': '0',  # OCR sometimes missrecognizes
-                       # Should add this digit to alpha definition
+            'O': '0',  # OCR sometimes missmatches 0 with O and visa versa
+                       # So we replace O with 0s to avoid problems with numbers
+                       # When text is expected 0s will be replaced to Os
         }
 
         for chr_from, chr_to in char_fixes.items():
@@ -38,6 +40,7 @@ class IdentityForm(forms.Form):
         return ocr_str
 
     def extract_mrz_data(self, ocr_texts):
+        '''Finds and extracts machine readable data in TD3 format from OCR texts'''
         ocr_str = ''.join(ocr_texts)
         ocr_str = self.remove_noise_from_ocr_string(ocr_str)
 
@@ -74,6 +77,7 @@ class IdentityForm(forms.Form):
         return match.groupdict()
 
     def get_ocr_texts(self, content):
+        '''Encodes and posts file content to RealID API in order to retrieve OCR texts'''
         content_base64, content_sha1 = self.encode_base64_and_sha1(content)
 
         validation_url = 'https://api.identiway.com/docs/validate'
@@ -95,6 +99,7 @@ class IdentityForm(forms.Form):
         return ocr_texts
 
     def to_upper_ascii(self, value):
+        '''Converts UTF-8 string into upper-cased ASCII string'''
         value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
         return value.decode().upper()
 
@@ -119,8 +124,8 @@ class IdentityForm(forms.Form):
             raise forms.ValidationError(msg)
 
         # Extracted data
-        mr_name = mrz_data['names'].strip('<')
-        mr_surname = mrz_data['surname'].strip('<')
+        mr_name = mrz_data['names'].strip('<').replace('0', 'O')
+        mr_surname = mrz_data['surname'].strip('<').replace('0', 'O')
         mr_country = mrz_data['issuing_country'].strip('<')
         mr_birth_date = mrz_data['date_of_birth']
         mr_personal_code = mrz_data['personal_number'].strip('<')
