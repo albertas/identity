@@ -26,7 +26,7 @@ class IdentityFormTestCase(TestCase):
     def test_empty_form_submition(self):
         resp = self.client.post(self.index_url, data={})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.content.count(b'class="errorlist"'), 4)
+        self.assertEqual(resp.content.count(b'class="errorlist'), 4)
         self.assertIn(b'This field is required.', resp.content)
 
     def test_text_field_form_submition(self):
@@ -39,11 +39,11 @@ class IdentityFormTestCase(TestCase):
         resp = self.client.post(self.index_url, data=data)
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.content.count(b'class="errorlist"'), 1)
+        self.assertEqual(resp.content.count(b'class="errorlist'), 1)
         self.assertIn(b'This field is required.', resp.content)
 
     @mock.patch('requests.post')
-    def test_successful_form_submition(self, post_mock):
+    def test_form_submition_with_data_missmatching_document_data(self, post_mock):
         post_mock.return_value = ResponseMock(
             status_code=200,
             content=open('identity/fixtures/realid_validation_content.json').read(),
@@ -54,6 +54,26 @@ class IdentityFormTestCase(TestCase):
             "surname": "Pavardenis",
             "birth_date": "2020-01-01",
             "document_picture": io.BytesIO(b'test_file_content'),
+        }
+
+        resp = self.client.post(self.index_url, data=data)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b'class="errorlist', resp.content)
+        self.assertIn(b'Entered name missmatches name on the document.', resp.content)
+
+    @mock.patch('requests.post')
+    def test_successful_form_submition_with_vigilija_data(self, post_mock):
+        post_mock.return_value = ResponseMock(
+            status_code=200,
+            content=open('identity/fixtures/realid_validation_content.json').read(),
+        )
+
+        data = {
+            "name": "Vigilija",
+            "surname": "Bružaitė",
+            "birth_date": "1978-03-11",
+            "document_picture": io.BytesIO(b'Vigilija_passport_image_content'),
         }
 
         resp = self.client.post(self.index_url, data=data)

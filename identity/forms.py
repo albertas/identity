@@ -1,6 +1,8 @@
 import base64
 import hashlib
 import re
+import unicodedata
+from datetime import datetime
 
 import requests
 
@@ -21,13 +23,13 @@ class IdentityForm(forms.Form):
         content_sha1 = m.hexdigest()
         return content_base64, content_sha1
 
-    def clean_noise(self, ocr_str):
+    def remove_noise_from_ocr_string(self, ocr_str):
         char_fixes = {
-            "\u3001": "",
-            " ": "",
-            "\n": "",
-            "\u304f": ">",
-            "O": "0",  # OCR sometimes missrecognizes
+            '\u3001': '',
+            ' ': '',
+            '\n': '',
+            '\u304f': '>',
+            'O': '0',  # OCR sometimes missrecognizes
                        # Should add this digit to alpha definition
         }
 
@@ -37,7 +39,7 @@ class IdentityForm(forms.Form):
 
     def extract_mrz_data(self, ocr_texts):
         ocr_str = ''.join(ocr_texts)
-        ocr_str = self.clean_noise(ocr_str)
+        ocr_str = self.remove_noise_from_ocr_string(ocr_str)
 
         alpha = '[^\W1-9_]'
         alpha_lt = f'({alpha}|<)'
@@ -71,16 +73,7 @@ class IdentityForm(forms.Form):
             return None
         return match.groupdict()
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if 'document_picture' not in cleaned_data:
-            return
-
-        document_picture = cleaned_data['document_picture']
-        content = document_picture.read()
-        document_picture.seek(0)
-
+    def get_ocr_texts(self, content):
         content_base64, content_sha1 = self.encode_base64_and_sha1(content)
 
         validation_url = 'https://api.identiway.com/docs/validate'
@@ -99,6 +92,23 @@ class IdentityForm(forms.Form):
         resp = requests.post(url=validation_url, headers=headers, json=data)
 
         ocr_texts = resp.json().get('ocr_texts')
+        return ocr_texts
+
+    def to_upper_ascii(self, value):
+        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
+        return value.decode().upper()
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if 'document_picture' not in cleaned_data:
+            return
+
+        document_picture = cleaned_data['document_picture']
+        content = document_picture.read()
+        document_picture.seek(0)
+
+        ocr_texts = self.get_ocr_texts(content)
         if not ocr_texts:
             msg = 'Could not validate data, because failed to call RealID API.'
             raise forms.ValidationError(msg)
@@ -109,11 +119,27 @@ class IdentityForm(forms.Form):
             raise forms.ValidationError(msg)
 
         # Extracted data
-        name = mrz_data['names'].strip('<')
-        surname = mrz_data['surname'].strip('<')
-        country = mrz_data['issuing_country']
-        birth_date = mrz_data['date_of_birth']
-        personal_code = mrz_data['personal_number']
+        mr_name = mrz_data['names'].strip('<')
+        mr_surname = mrz_data['surname'].strip('<')
+        mr_country = mrz_data['issuing_country'].strip('<')
+        mr_birth_date = mrz_data['date_of_birth']
+        mr_personal_code = mrz_data['personal_number'].strip('<')
 
-        # TODO: Compare the extracted data with user enetered data
+        # Entered data
+        entered_name = cleaned_data['name']
+        entered_surname = cleaned_data['surname']
+        entered_birth_date = cleaned_data['birth_date']
 
+        # Unified format enetered data
+        entered_name_upper_ascii = self.to_upper_ascii(entered_name)
+        entered_surname_upper_ascii = self.to_upper_ascii(entered_surname)
+        entered_birth_date_YYMMDD = datetime.strftime(entered_birth_date, '%y%m%d')
+
+        if entered_name_upper_ascii != mr_name:
+            raise forms.ValidationError('Entered name missmatches name on the document.')
+
+        if entered_surname_upper_ascii!= mr_surname:
+            raise forms.ValidationError('Entered surname missmatches surname on the document.')
+
+        if entered_birth_date_YYMMDD != mr_birth_date:
+            raise forms.ValidationError('Entered birth date missmatches birth date on the document.')
