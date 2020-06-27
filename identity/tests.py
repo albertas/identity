@@ -82,3 +82,24 @@ class IdentityFormTestCase(TestCase):
         self.assertIn(b'You have entered correct information!', resp.content)
         self.assertNotIn(b'class="errorlist"', resp.content)
         self.assertNotIn(b'This field is required.', resp.content)
+
+    @mock.patch('requests.post')
+    def test_successful_form_submition_with_birute_data(self, post_mock):
+        post_mock.return_value = ResponseMock(
+            status_code=200,
+            content=open('identity/fixtures/birute_realid_validation_content.json').read(),
+        )
+
+        data = {
+            "name": "Birutė",
+            "surname": "Basanavičienė",
+            "birth_date": "1959-11-23",
+            "document_picture": io.BytesIO(b'Birute_passport_image_content'),
+        }
+
+        resp = self.client.post(self.index_url, data=data)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b'You have entered correct information!', resp.content)
+        self.assertNotIn(b'class="errorlist"', resp.content)
+        self.assertNotIn(b'This field is required.', resp.content)
