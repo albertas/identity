@@ -86,8 +86,16 @@ def remove_noise_from_ocr_string(ocr_str):
 
 
 def extract_mrz(ocr_text):
-    # Surname and name has to be strictly separated by <<
-    # So find << and search for first \n to the right before checking td3 pattern
+    '''Extracts MRZ from OCR texts.
+
+    OCR sometimes misses '<' filler characters when they are repeated multiple times.
+    This makes it hard to identify the beginning of the TD3 pattern, because
+    the first line consists of any alpha or < characters.
+
+    In TD3 format surname and name has to be strictly separated by '<<'
+    So a strategy to find '<<' separator and then to search for first \n to the right
+    was chosen to identify the beginning of the MRZ
+    '''
     surname_name_sep_pattern = f'{alpha}{{1}}\s*<\s*<\s*{alpha}{{1}}'
 
     ocr_str = remove_noise_from_ocr_string(ocr_text)
