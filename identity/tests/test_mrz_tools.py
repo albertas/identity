@@ -58,7 +58,6 @@ class MRZToolsTestCase(TestCase):
                 'personal_number_check_digit': '1',
                 'sex': 'F',
                 'surname': 'BASANAVICIENE',
-                'td3': 'P<LTUBASANAVICIENE<<BIRUTE<<<<<<<<<<<<<<<<<<00000000<0LTU5911239F160828545911231023<<<10'
             }
         ),
         (
@@ -80,7 +79,6 @@ class MRZToolsTestCase(TestCase):
                 'personal_number_check_digit': '6',
                 'sex': 'F',
                 'surname': 'BRUZAITE',
-                'td3': 'P<LTUBRUZAITE<<VIGILIJA<<<<<<<<<<<<<<00000000<0LTU7803118F210127747803111025<<<64'
             }
         ),
         (
@@ -102,7 +100,6 @@ class MRZToolsTestCase(TestCase):
                 'personal_number_check_digit': '6',
                 'sex': 'F',
                 'surname': 'BRUZAITE',
-                'td3': 'P<LTUBRUZAITE<<VIGILIJA<<<<<<<<<00000000<0LTU7803118F210127747803111025<<<64'
              }
         ),
     ])

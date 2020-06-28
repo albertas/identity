@@ -109,6 +109,7 @@ def extract_mrz_data_from_mrz(mrz):
     if match:
         mrz_data = match.groupdict()
         mrz_data.pop('suname_name_separator')
+        mrz_data.pop('td3')
 
         not_num_keys = [
             'passport_indicator',
