@@ -4,7 +4,7 @@ from parameterized import parameterized
 
 from django.test import TestCase
 
-from identity.mrz_tools import get_mrz, extract_mrz_data_from_mrz
+from identity.mrz_tools import extract_mrz, extract_mrz_data_from_mrz
 
 
 class MRZToolsTestCase(TestCase):
@@ -35,7 +35,7 @@ class MRZToolsTestCase(TestCase):
         ),
     ])
     def test_mrz_detection(self, ocr_texts, mrz):
-        self.assertEqual(get_mrz(ocr_texts), mrz)
+        self.assertEqual(extract_mrz(ocr_texts), mrz)
 
 
     @parameterized.expand([

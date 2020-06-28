@@ -85,7 +85,7 @@ def remove_noise_from_ocr_string(ocr_str):
     return ocr_str
 
 
-def get_mrz(ocr_texts):
+def extract_mrz(ocr_texts):
     # Surname and name has to be strictly separated by <<
     # So find << and search for first \n to the right before checking td3 pattern
     surname_name_sep_pattern = f'{alpha}{{1}}<<{alpha}{{1}}'
@@ -130,7 +130,7 @@ def extract_mrz_data_from_mrz(mrz):
 
 def extract_mrz_data(ocr_texts):
     '''Returns dictionary with MRZ data extracted from OCR texts'''
-    mrz = get_mrz(ocr_texts)
+    mrz = extract_mrz(ocr_texts)
     mrz_data = extract_mrz_data_from_mrz(mrz)
     return mrz_data
 
