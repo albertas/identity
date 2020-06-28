@@ -103,11 +103,36 @@ def get_mrz(ocr_texts):
             return match.groupdict()['td3']
 
 
-def extract_mrz_data(ocr_texts):
-    mrz = get_mrz(ocr_texts)
+def extract_mrz_data_from_mrz(mrz):
+    '''Returns dictionary with MRZ data extracted from MRZ'''
     match = re.search(td3_pattern, mrz)
     if match:
-        return match.groupdict()
+        mrz_data = match.groupdict()
+        mrz_data.pop('suname_name_separator')
+
+        not_num_keys = [
+            'passport_indicator',
+            'passport_type',
+            'issuing_country',
+            'surname',
+            'names',
+            'nationality',
+            'sex',
+        ]
+
+        for key in mrz_data:
+            mrz_data[key] = mrz_data[key].strip('<')
+            if key in not_num_keys:
+                mrz_data[key] = mrz_data[key].replace('0', 'O')
+
+        return mrz_data
+
+
+def extract_mrz_data(ocr_texts):
+    '''Returns dictionary with MRZ data extracted from OCR texts'''
+    mrz = get_mrz(ocr_texts)
+    mrz_data = extract_mrz_data_from_mrz(mrz)
+    return mrz_data
 
 
 def to_upper_ascii(value):

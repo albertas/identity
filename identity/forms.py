@@ -37,11 +37,11 @@ class IdentityForm(forms.Form):
             raise forms.ValidationError(msg)
 
         # Extracted data
-        mr_name = mrz_data['names'].strip('<').replace('0', 'O')
-        mr_surname = mrz_data['surname'].strip('<').replace('0', 'O')
-        mr_country = mrz_data['issuing_country'].strip('<')
+        mr_name = mrz_data['names']
+        mr_surname = mrz_data['surname']
+        mr_country = mrz_data['issuing_country']
         mr_birth_date = mrz_data['date_of_birth']
-        mr_personal_code = mrz_data['personal_number'].strip('<')
+        mr_personal_code = mrz_data['personal_number']
 
         # Entered data
         entered_name = cleaned_data['name']
