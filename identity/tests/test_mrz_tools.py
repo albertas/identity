@@ -1,3 +1,5 @@
+import json
+
 from parameterized import parameterized
 
 from django.test import TestCase
@@ -23,9 +25,17 @@ class MRZToolsTestCase(TestCase):
             ["Bouzoute\nEL\nP<LTUBRUZAITE<<VIGILIJA<<<<\n<<<<<\n00000000<OLTU7803118 F210127747803111025<<<64\n"],
             "P<LTUBRUZAITE<<VIGILIJA<<<<<<<<<00000000<0LTU7803118F210127747803111025<<<64",
         ),
+        (
+            json.load(open('identity/fixtures/birute_realid_validation_content.json'))['ocr_texts'],
+            "P<LTUBASANAVICIENE<<BIRUTE<<<<<<<<<<<<<<<<<<00000000<0LTU5911239F160828545911231023<<<10",
+        ),
+        (
+            json.load(open('identity/fixtures/vigilija_realid_validation_content.json'))['ocr_texts'],
+            "P<LTUBRUZAITE<<VIGILIJA<<<<<<<<<<<<<<00000000<0LTU7803118F210127747803111025<<<64",
+        ),
     ])
-    def test_mrz_detection(self, ocr_str, mrz):
-        self.assertEqual(get_mrz(ocr_str), mrz)
+    def test_mrz_detection(self, ocr_texts, mrz):
+        self.assertEqual(get_mrz(ocr_texts), mrz)
 
 
     @parameterized.expand([
