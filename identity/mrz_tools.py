@@ -88,11 +88,12 @@ def remove_noise_from_ocr_string(ocr_str):
 def extract_mrz(ocr_texts):
     # Surname and name has to be strictly separated by <<
     # So find << and search for first \n to the right before checking td3 pattern
-    surname_name_sep_pattern = f'{alpha}{{1}}<<{alpha}{{1}}'
+    surname_name_sep_pattern = f'{alpha}{{1}}\s*<\s*<\s*{alpha}{{1}}'
 
     ocr_texts_str = '\n'.join(ocr_texts)
     ocr_str = remove_noise_from_ocr_string(ocr_texts_str)
 
+    mrz_matches = []
     for sep_match in re.finditer(surname_name_sep_pattern, ocr_str):
         mrz_start_index = ocr_str[:sep_match.start()].rfind('\n')
 
@@ -100,7 +101,10 @@ def extract_mrz(ocr_texts):
 
         match = re.search(td3_pattern, ocr_str_without_newlines)
         if match:
-            return match.groupdict()['td3']
+            mrz_matches.append(match.groupdict()['td3'])
+
+    if mrz_matches:
+        return sorted(mrz_matches, key=lambda x: len(x))[-1]
 
 
 def extract_mrz_data_from_mrz(mrz):
