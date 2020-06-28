@@ -24,3 +24,7 @@ pygments==2.6.1
 six==1.15.0
 traitlets==4.3.3
 wcwidth==0.2.5
+
+wheel==0.34.2
+
+parameterized==0.7.4
