@@ -10,9 +10,11 @@ def index(request):
             return render(request, 'identity/identity_form.html', {
                 'form': IdentityForm(),
                 'message': 'You have entered correct information!',
+                'mrz_data': form.mrz_data,
             })
     else:
         form = IdentityForm()
     return render(request, 'identity/identity_form.html', {
         'form': form,
+        'mrz_data': form.mrz_data,
     })

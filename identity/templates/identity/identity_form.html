@@ -1,6 +1,14 @@
 
 {{ message }}
 
+{% if mrz_data %}<p>
+Read data from document: <br/>
+    {% for name, key in mrz_data.items %}
+        <b>{{ name }}</b>: {{ key }}<br/>
+    {% endfor %}
+    </p>
+{% endif %}
+
 <form action="." method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {{ form.as_p }}

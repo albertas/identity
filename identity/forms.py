@@ -15,6 +15,8 @@ class IdentityForm(forms.Form):
     birth_date = forms.DateField()
     document_picture = forms.FileField()
 
+    mrz_data = None
+
     def clean(self):
         cleaned_data = super().clean()
 
@@ -30,18 +32,18 @@ class IdentityForm(forms.Form):
             msg = 'Could not validate data, because failed to call RealID API.'
             raise forms.ValidationError(msg)
 
-        mrz_data = extract_mrz_data(ocr_text)
+        self.mrz_data = extract_mrz_data(ocr_text)
 
-        if not mrz_data:
+        if not self.mrz_data:
             msg = 'Could not validate data, because failed to parse info from image.'
             raise forms.ValidationError(msg)
 
         # Extracted data
-        mr_name = mrz_data['names']
-        mr_surname = mrz_data['surname']
-        mr_country = mrz_data['issuing_country']
-        mr_birth_date = mrz_data['date_of_birth']
-        mr_personal_code = mrz_data['personal_number']
+        mr_name = self.mrz_data['names']
+        mr_surname = self.mrz_data['surname']
+        mr_country = self.mrz_data['issuing_country']
+        mr_birth_date = self.mrz_data['date_of_birth']
+        mr_personal_code = self.mrz_data['personal_number']
 
         # Entered data
         entered_name = cleaned_data['name']
