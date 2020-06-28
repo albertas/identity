@@ -46,7 +46,7 @@ def encode_base64_and_sha1(content):
     return content_base64, content_sha1
 
 
-def get_ocr_texts(content):
+def get_ocr_text(content):
     '''Encodes and posts file content to RealID API in order to retrieve OCR texts'''
     content_base64, content_sha1 = encode_base64_and_sha1(content)
 
@@ -66,7 +66,7 @@ def get_ocr_texts(content):
     resp = requests.post(url=validation_url, headers=headers, json=data)
 
     if resp.ok:
-        return resp.json().get('ocr_texts')
+        return resp.json().get('ocr_texts')[0]
 
 
 def remove_noise_from_ocr_string(ocr_str):
@@ -85,13 +85,12 @@ def remove_noise_from_ocr_string(ocr_str):
     return ocr_str
 
 
-def extract_mrz(ocr_texts):
+def extract_mrz(ocr_text):
     # Surname and name has to be strictly separated by <<
     # So find << and search for first \n to the right before checking td3 pattern
     surname_name_sep_pattern = f'{alpha}{{1}}\s*<\s*<\s*{alpha}{{1}}'
 
-    ocr_texts_str = '\n'.join(ocr_texts)
-    ocr_str = remove_noise_from_ocr_string(ocr_texts_str)
+    ocr_str = remove_noise_from_ocr_string(ocr_text)
 
     mrz_matches = []
     for sep_match in re.finditer(surname_name_sep_pattern, ocr_str):
@@ -133,9 +132,9 @@ def extract_mrz_data_from_mrz(mrz):
         return mrz_data
 
 
-def extract_mrz_data(ocr_texts):
+def extract_mrz_data(ocr_text):
     '''Returns dictionary with MRZ data extracted from OCR texts'''
-    mrz = extract_mrz(ocr_texts)
+    mrz = extract_mrz(ocr_text)
     mrz_data = extract_mrz_data_from_mrz(mrz)
     return mrz_data
 

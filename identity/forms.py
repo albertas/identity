@@ -3,7 +3,7 @@ from datetime import datetime
 from django import forms
 
 from identity.mrz_tools import (
-    get_ocr_texts,
+    get_ocr_text,
     extract_mrz_data,
     to_upper_ascii,
 )
@@ -25,12 +25,12 @@ class IdentityForm(forms.Form):
         content = document_picture.read()
         document_picture.seek(0)
 
-        ocr_texts = get_ocr_texts(content)
-        if not ocr_texts:
+        ocr_text = get_ocr_text(content)
+        if not ocr_text:
             msg = 'Could not validate data, because failed to call RealID API.'
             raise forms.ValidationError(msg)
 
-        mrz_data = extract_mrz_data(ocr_texts)
+        mrz_data = extract_mrz_data(ocr_text)
 
         if not mrz_data:
             msg = 'Could not validate data, because failed to parse info from image.'
