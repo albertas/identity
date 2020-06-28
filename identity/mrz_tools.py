@@ -65,8 +65,8 @@ def get_ocr_texts(content):
 
     resp = requests.post(url=validation_url, headers=headers, json=data)
 
-    ocr_texts = resp.json().get('ocr_texts')
-    return ocr_texts
+    if resp.ok:
+        return resp.json().get('ocr_texts')
 
 
 def remove_noise_from_ocr_string(ocr_str):

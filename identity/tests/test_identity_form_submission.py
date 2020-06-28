@@ -11,6 +11,10 @@ class ResponseMock:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+    @property
+    def ok(self):
+        return int(self.status_code) < 400
+
     def json(self):
         return json.loads(self.content)
 
